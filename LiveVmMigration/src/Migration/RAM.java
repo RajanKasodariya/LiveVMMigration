@@ -5,8 +5,6 @@ import java.util.Arrays;
 
 public class RAM implements Serializable{
 	
-	// RAM Files
-	
 	private static final long serialVersionUID = 2633050814469107501L;
 	private final int SIZE;
 	private int RAM[]; 
