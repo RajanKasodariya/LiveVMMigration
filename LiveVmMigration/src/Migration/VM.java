@@ -12,6 +12,7 @@ import static Migration.Instructions.*;
 import javax.print.attribute.standard.PrinterLocation;
 
 public class VM {
+	/*hi */
 	/* Variables */
 	private int stackSize;		// stack size
 	private int ip; 			// instruction pointer
