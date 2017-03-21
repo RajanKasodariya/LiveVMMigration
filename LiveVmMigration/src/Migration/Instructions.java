@@ -1,20 +1,20 @@
 package Migration;
 
 public class Instructions {
-	public static short  IADD=1;
-	public static short  ISUB=1;
-	public static short  IMUL=1;
-	public static short  LT=1;
-	public static short  EQ=1;
-	public static short  BR=1;
-	public static short  BRT=1;
-	public static short  BRF=1;
-	public static short  CONST=1;
-	public static short  GLOAD=1;
-	public static short  GSTORE=1;
-	public static short  PRINT=1;
-	public static short  HOLT=1;
-	public static short  POP=1;
-	public static short  READ=1;
-	public static short  WRITE=1;
+	public static final short IADD=1;
+	public static final short  ISUB=2;
+	public static final short  IMUL=3;
+	public static final short  LT=4;
+	public static final short  EQ=5;
+	public static final short  BR=6;
+	public static final short  BRT=7;
+	public static final short  BRF=8;
+	public static final short  CONST=9;
+	public static final short  GLOAD=10;
+	public static final short  GSTORE=11;
+	public static final short  PRINT=12;
+	public static final short  HALT=13;
+	public static final short  POP=14;
+	public static final short  READ=15;
+	public static final short  WRITE=16;
 }
