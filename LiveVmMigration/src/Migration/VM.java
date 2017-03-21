@@ -128,7 +128,7 @@ public class VM {
 	 * cpu
 	 */
 	public void cpu(){
-		int opcode=code[ip];
+		int opcode=code[++ip];
 		int a,b;
 		
 		while(opcode!=HALT && ip<code.length){
