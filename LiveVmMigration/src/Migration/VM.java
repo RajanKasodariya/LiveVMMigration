@@ -1,9 +1,11 @@
 package Migration;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import javax.print.attribute.standard.PrinterLocation;
 
@@ -55,10 +57,14 @@ public class VM {
 			ServerSocket sc=new ServerSocket();
 			
 			// Accept client request
-			Socket client=new Socket();
+			Socket client=sc.accept();
 			
 			ObjectOutputStream op=new ObjectOutputStream(client.getOutputStream());
+			op.writeObject(this);
 			
+			op.close();
+			client.close();
+			sc.close();
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -69,4 +75,43 @@ public class VM {
 	/*
 	 * Receives complete VM at destination
 	 * */
+	
+	public void receiveVM() throws ClassNotFoundException{
+		try {
+			Socket client = new Socket(Config.sourceIP,Config.sourcePORT);
+			ObjectInputStream in;
+			in = new ObjectInputStream(client.getInputStream());
+			
+			VM vm = (VM) in.readObject();
+			
+			this.reset(vm);
+			in.close();
+			client.close();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void reset(VM vm) {
+		this.stackSize=vm.getStackSize();
+		ip=vm.getIP();
+		sp=vm.getSP();
+		
+	}
+
+	public int getSP() {
+		return sp;
+	}
+
+	public int getIP() {
+		return ip;
+	}
+
+	public int getStackSize() {
+		return stackSize;
+	}
 }
