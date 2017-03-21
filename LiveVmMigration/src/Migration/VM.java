@@ -28,8 +28,8 @@ public class VM {
 	
 	public VM(int code[],int stackSize){
 		this.stackSize=stackSize;
-		ip=0;
-		sp=0;
+		ip=-1;
+		sp=-1;
 		
 		this.code=code;
 		global=new int[stackSize];
