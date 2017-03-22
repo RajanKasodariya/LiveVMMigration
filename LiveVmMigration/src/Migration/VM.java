@@ -84,9 +84,9 @@ public class VM implements Serializable{
 	 * Receives complete VM at destination
 	 * */
 	
-	public void receiveVM() throws ClassNotFoundException{
+	public void receiveVM(ServerSocket sc) throws ClassNotFoundException{
 		try {
-			ServerSocket sc=new ServerSocket(Config.destinationPORT);
+			//ServerSocket sc=new ServerSocket(Config.destinationPORT);
 			Socket client = sc.accept();
 			ObjectInputStream in;
 			in = new ObjectInputStream(client.getInputStream());
@@ -97,7 +97,7 @@ public class VM implements Serializable{
 			
 			in.close();
 			client.close();
-			sc.close();
+			//sc.close();
 			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -264,6 +264,9 @@ public class VM implements Serializable{
 			op.writeObject(new RamPage(-1, -1));
 			System.out.println("Migration over");
 			
+			op.close();
+			client.close();
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -279,11 +282,12 @@ public class VM implements Serializable{
 	}
 
 	/* receives RAM Pages at destination side */
-	public void receiveRAMPages() throws ClassNotFoundException {
+	public void receiveRAMPages(ServerSocket sc) throws ClassNotFoundException {
 		
-		ServerSocket sc;
+		//ServerSocket sc;
 		try {
-			sc = new ServerSocket(Config.destinationPORT);
+			//sc = new ServerSocket(Config.destinationPORT);
+			//sc = new ServerSocket(4449);
 			Socket client = sc.accept();
 			
 			ObjectInputStream ip; // input stream
@@ -299,10 +303,16 @@ public class VM implements Serializable{
 				
 				System.out.println("Received Page : ["+ page.getPAGE_INDEX() + "][" + page.getPAGE_VALUE()+"]" );
 			}
+			
+			//sc.close();
+			ip.close();
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
 	}
 	
 
