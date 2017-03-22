@@ -3,6 +3,7 @@ package Migration;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -13,7 +14,7 @@ import static Migration.Instructions.*;
 
 import javax.print.attribute.standard.PrinterLocation;
 
-public class VM {
+public class VM implements Serializable{
 	/* Variables */
 	private int stackSize;		// stack size
 	private int ip; 			// instruction pointer
@@ -68,7 +69,7 @@ public class VM {
 			Socket client=new Socket(Config.destinationIP,Config.destinationPORT);
 			
 			ObjectOutputStream op=new ObjectOutputStream(client.getOutputStream());
-			op.writeObject(this);
+			op.writeObject(new VMInfo(this.getStackSize(),this.getStackSize()));
 			
 			op.close();
 			client.close();
@@ -90,9 +91,10 @@ public class VM {
 			ObjectInputStream in;
 			in = new ObjectInputStream(client.getInputStream());
 			
-			VM vm = (VM) in.readObject();
+			VMInfo vminfo = (VMInfo) in.readObject();
 			
-			this.reset(vm);
+			this.reset(vminfo);
+			
 			in.close();
 			client.close();
 			sc.close();
@@ -106,11 +108,18 @@ public class VM {
 		}
 	}
 
-	private void reset(VM vm) {
-		this.stackSize=vm.getStackSize();
-		ip=vm.getIP();
-		sp=vm.getSP();
+	private void reset(VMInfo vminfo) {
+		this.stackSize=vminfo.getStackSize();
+		this.ip=vminfo.getIp();
+		this.sp=vminfo.getSp();	
 		
+		// deleting RAM and Stack
+		rm=null;
+		stack=null;
+		
+		// create new RAM and Stack
+		rm=new RAM(vminfo.getRamSize());
+		stack=new int[this.stackSize];
 	}
 
 	public int getSP() {
@@ -126,7 +135,6 @@ public class VM {
 	}
 
 	public void setRamPage(int page_INDEX, int page_VALUE) {
-		
 		rm.setRAM(page_INDEX, page_VALUE);
 	}
 	
@@ -217,7 +225,7 @@ public class VM {
 	}
 
 	boolean stopMigration(int migratedPages){
-		return migratedPages<=2;
+		return migratedPages<0;
 	}
 	
 	public void migrate() {
@@ -230,18 +238,31 @@ public class VM {
 			ObjectOutputStream op;
 			op=new ObjectOutputStream(client.getOutputStream());
 			
-			while(!stopMigration(migratedPages)) {
+			System.out.println("Migration stared");
+			
+			
+			do {
+				migratedPages=0;
 				for(int i=0;i<rm.getSize();i++){
 					/* Send page if it is dirty */
 					if(dirty[i]) {
 						// send page
 						dirty[i]=false;
 						op.writeObject(new RamPage(i, rm.getRAM(i)));
+						migratedPages++;
+						System.out.println("Page sent "+i);
+					}
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
-			}
+			}while(!stopMigration(migratedPages));
 			
 			op.writeObject(new RamPage(-1, -1));
+			System.out.println("Migration over");
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

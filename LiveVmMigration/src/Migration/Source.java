@@ -55,5 +55,14 @@ public class Source {
 		/* Initiate Migration */
 		Thread t2=new Thread(new StartPreCopyMigration(vm));
 		t2.start();
+		
+		try {
+			t2.join(0);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println();
 	}
 }
