@@ -29,7 +29,7 @@ class StartPreCopyMigration extends Thread{
 	public void run(){
 		vm.sendVM();            // sends VM copy
 		vm.migrate();			// migrates RAM pages iteratively
-		vm.migrateStates();		// migrates cpu states
+		vm.migrateStates();		// migrates CPU states
 	}
 }
 
@@ -57,12 +57,13 @@ public class Source {
 		t2.start();
 		
 		try {
-			t2.join(0);
+			t2.join();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		System.out.println();
+		
+		System.out.println("Migration completed...");
 	}
 }

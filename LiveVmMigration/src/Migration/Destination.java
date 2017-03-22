@@ -17,6 +17,7 @@ public class Destination {
 		ServerSocket sc=new ServerSocket(Config.destinationPORT);
 		vm.receiveVM(sc);
 		vm.receiveRAMPages(sc);
+		vm.receiveState(sc);
 		sc.close();
 	}
 }

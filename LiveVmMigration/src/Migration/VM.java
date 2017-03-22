@@ -225,7 +225,7 @@ public class VM implements Serializable{
 	}
 
 	boolean stopMigration(int migratedPages){
-		return migratedPages<0;
+		return migratedPages<=2;
 	}
 	
 	public void migrate() {
@@ -251,14 +251,15 @@ public class VM implements Serializable{
 						op.writeObject(new RamPage(i, rm.getRAM(i)));
 						migratedPages++;
 						System.out.println("Page sent "+i);
-					}
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						try {
+							Thread.sleep(50);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
+				System.out.println("In loop...");
 			}while(!stopMigration(migratedPages));
 			
 			op.writeObject(new RamPage(-1, -1));
@@ -274,11 +275,40 @@ public class VM implements Serializable{
 		
 
 	}
-
+	
+	
 	public void migrateStates() {
 		// TODO Auto-generated method stub
+		System.out.println("CPU States Migrating...");
+		Socket client;
+		try {
+			client = new Socket(Config.destinationIP,Config.destinationPORT);
+			
+			ObjectOutputStream op;
+			op=new ObjectOutputStream(client.getOutputStream());
+			
+			System.out.println("Migration stared");
+			/* Send whole stack after ram migration */
+			
+			op.writeObject(stack);
+			
+			/* send state info */
+			VMInfo vminfo = new VMInfo(this.getStackSize(),this.getStackSize());
+			vminfo.setIp(this.getIP());
+			vminfo.setSp(this.getSP());
+			op.writeObject(vminfo);
+			
+			op.writeObject(new RamPage(-1, -1));
+			System.out.println("Migration over");
+			
+			op.close();
+			client.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		System.out.println("CPU States Migrated");
-		
 	}
 
 	/* receives RAM Pages at destination side */
@@ -314,6 +344,56 @@ public class VM implements Serializable{
 		
 		
 	}
+	
+	
+	/* Receive state from source */
+	public void receiveState(ServerSocket sc) throws ClassNotFoundException {
+		
+		//ServerSocket sc;
+		try {
+			//sc = new ServerSocket(Config.destinationPORT);
+			//sc = new ServerSocket(4449);
+			Socket client = sc.accept();
+			
+			ObjectInputStream ip; // input stream
+			ip=new ObjectInputStream(client.getInputStream());
+			
+			/* read stack from source*/
+			stack = (int []) ip.readObject();
+			
+			/* read state info */
+			VMInfo vminfo = (VMInfo) ip.readObject();
+			this.setIp(vminfo.getIp());
+			this.setSp(vminfo.getSp());
+			
+			//sc.close();
+			ip.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
+
+	public int getIp() {
+		return ip;
+	}
+
+	public void setIp(int ip) {
+		this.ip = ip;
+	}
+
+	public int getSp() {
+		return sp;
+	}
+
+	public void setSp(int sp) {
+		this.sp = sp;
+	}
+	
+	
 	
 
 }
