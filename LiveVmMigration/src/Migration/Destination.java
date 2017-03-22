@@ -7,17 +7,17 @@ import Migration.VM;
 
 public class Destination {
 	
-	public static void main(String args[]) throws ClassNotFoundException, IOException{
-	    int A[];
-	    A = new int[2];
-	    
+	public static void main(String args[]) throws ClassNotFoundException, IOException, InterruptedException{
+
 		// creating VM which is not doing anything
-		VM vm = new VM(A,10);  
+		VM vm = new VM(Program.code2,1000);  
 		
 		ServerSocket sc=new ServerSocket(Config.destinationPORT);
 		vm.receiveVM(sc);
 		vm.receiveRAMPages(sc);
 		vm.receiveState(sc);
+		
+		vm.cpu();
 		sc.close();
 	}
 }

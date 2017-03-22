@@ -35,9 +35,13 @@ class StartPreCopyMigration extends Thread{
 
 public class Source {
 	
+	@SuppressWarnings("deprecation")
 	public static void main(String args[]){
 				
+		/*  */
 		VM vm=new VM(Program.code2,1000);
+		
+		System.out.println("Len : "+Program.code2.length);
 		
 		RunCPU runcpu=new RunCPU(vm);
 		Thread t1=new Thread(runcpu);
@@ -46,7 +50,7 @@ public class Source {
 		t1.start();
 		
 		try {
-			Thread.sleep(900);
+			Thread.sleep(200);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -62,8 +66,7 @@ public class Source {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+		t1.stop();
 		System.out.println("Migration completed...");
 	}
 }

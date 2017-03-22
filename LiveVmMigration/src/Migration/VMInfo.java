@@ -45,4 +45,9 @@ public class VMInfo implements Serializable{
 		this.sp = sp;
 	}
 
+	public String toString(){
+		return "IP="+ip+" SP= "+sp+"\n" ;
+		
+	}
+	
 }

@@ -144,7 +144,9 @@ public class VM implements Serializable{
 	 * cpu
 	 */
 	public void cpu() throws InterruptedException{
+		if(ip>=code.length) return;
 		int opcode=code[++ip];
+		
 		int a,b;
 		
 		while(opcode!=HALT && ip<code.length){
@@ -179,6 +181,7 @@ public class VM implements Serializable{
 				System.out.println("Executing Write to i: "+a);
 				rm.setRAM(a, stack[sp]);
 				dirty[a]=true;
+				Thread.sleep(1000);
 				break;
 			case LT:
 				b=stack[sp--];
@@ -220,16 +223,18 @@ public class VM implements Serializable{
 			}
 			if(ip==code.length) break;
 			opcode=code[ip];
-			Thread.sleep(100);
+			Thread.sleep(300);
+			System.out.println("IP :: "+ip);
 		}
 	}
 
-	boolean stopMigration(int migratedPages){
-		return migratedPages<=2;
+	boolean stopMigration(int migratedPages,int noOfIterations){
+		return migratedPages<=2 || noOfIterations==3;
 	}
 	
 	public void migrate() {
 		int migratedPages=0;
+		int noOfIterations=0;
 		
 		Socket client;
 		try {
@@ -251,16 +256,11 @@ public class VM implements Serializable{
 						op.writeObject(new RamPage(i, rm.getRAM(i)));
 						migratedPages++;
 						System.out.println("Page sent "+i);
-						try {
-							Thread.sleep(50);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
 					}
 				}
 				System.out.println("In loop...");
-			}while(!stopMigration(migratedPages));
+				noOfIterations++;
+			}while(!stopMigration(migratedPages,noOfIterations));
 			
 			op.writeObject(new RamPage(-1, -1));
 			System.out.println("Migration over");
@@ -278,7 +278,7 @@ public class VM implements Serializable{
 	
 	
 	public void migrateStates() {
-		// TODO Auto-generated method stub
+		
 		System.out.println("CPU States Migrating...");
 		Socket client;
 		try {
@@ -286,10 +286,10 @@ public class VM implements Serializable{
 			
 			ObjectOutputStream op;
 			op=new ObjectOutputStream(client.getOutputStream());
+						
+			/* Send RAM last time */
 			
-			System.out.println("Migration stared");
 			/* Send whole stack after ram migration */
-			
 			op.writeObject(stack);
 			
 			/* send state info */
@@ -298,7 +298,8 @@ public class VM implements Serializable{
 			vminfo.setSp(this.getSP());
 			op.writeObject(vminfo);
 			
-			op.writeObject(new RamPage(-1, -1));
+			System.out.println(">>> VM INFO : "+ vminfo);
+			
 			System.out.println("Migration over");
 			
 			op.close();
@@ -336,6 +337,7 @@ public class VM implements Serializable{
 			
 			//sc.close();
 			ip.close();
+			client.close();
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -358,8 +360,12 @@ public class VM implements Serializable{
 			ObjectInputStream ip; // input stream
 			ip=new ObjectInputStream(client.getInputStream());
 			
+			
+			System.out.println("Before stack migration");
 			/* read stack from source*/
 			stack = (int []) ip.readObject();
+			System.out.println("After stack migration");
+			
 			
 			/* read state info */
 			VMInfo vminfo = (VMInfo) ip.readObject();
@@ -368,6 +374,7 @@ public class VM implements Serializable{
 			
 			//sc.close();
 			ip.close();
+			client.close();
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -392,8 +399,6 @@ public class VM implements Serializable{
 	public void setSp(int sp) {
 		this.sp = sp;
 	}
-	
-	
 	
 
 }
