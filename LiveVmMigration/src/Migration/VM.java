@@ -6,6 +6,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Random;
 
 import static Migration.Instructions.*;
 
@@ -33,9 +35,15 @@ public class VM {
 		ip=-1;
 		sp=-1;
 		
+		rm=new RAM(stackSize);
+		rm.fillRAM();     // fill RAM with randon values
+		
 		this.code=code;
 		global=new int[stackSize];
 		stack=new int[stackSize];
+		dirty=new boolean[stackSize];
+		
+		Arrays.fill(dirty, true);
 	}
 	
 	/*
@@ -51,22 +59,19 @@ public class VM {
 	/*
 	 * Sends complete VM to destination
 	 * 
-	 * Sender behaves as a Server
+	 * Sender behaves as a client
 	 * */
 	
 	public void sendVM(){
-		try {
-			ServerSocket sc=new ServerSocket();
-			
+		try {			
 			// Accept client request
-			Socket client=sc.accept();
+			Socket client=new Socket(Config.destinationIP,Config.destinationPORT);
 			
 			ObjectOutputStream op=new ObjectOutputStream(client.getOutputStream());
 			op.writeObject(this);
 			
 			op.close();
 			client.close();
-			sc.close();
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -80,7 +85,8 @@ public class VM {
 	
 	public void receiveVM() throws ClassNotFoundException{
 		try {
-			Socket client = new Socket(Config.sourceIP,Config.sourcePORT);
+			ServerSocket sc=new ServerSocket(Config.destinationPORT);
+			Socket client = sc.accept();
 			ObjectInputStream in;
 			in = new ObjectInputStream(client.getInputStream());
 			
@@ -89,6 +95,8 @@ public class VM {
 			this.reset(vm);
 			in.close();
 			client.close();
+			sc.close();
+			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -127,7 +135,7 @@ public class VM {
 	/*
 	 * cpu
 	 */
-	public void cpu(){
+	public void cpu() throws InterruptedException{
 		int opcode=code[++ip];
 		int a,b;
 		
@@ -154,14 +162,15 @@ public class VM {
 				break;
 			case READ:
 				a=code[ip++];
-				System.out.println("Executing READ from i: "+a);
 				b=rm.getRAM(a);
 				stack[++sp]=b;
+				System.out.println("Executing READ from i: "+a+" = "+b);
 				break;
 			case WRITE:
 				a=code[ip++];
 				System.out.println("Executing Write to i: "+a);
-				rm.setRAM(a, stack[sp--]);
+				rm.setRAM(a, stack[sp]);
+				dirty[a]=true;
 				break;
 			case LT:
 				b=stack[sp--];
@@ -191,7 +200,7 @@ public class VM {
 				break;
 			case PRINT:
 				System.out.println("Exectuting PRINT");
-				System.out.println(stack[sp--]);
+				System.out.println(stack[sp]);
 				break;
 			case POP:
 				System.out.println("Execuiting POP");
@@ -201,7 +210,77 @@ public class VM {
 				throw new Error("invalid opcode: "+opcode+" at ip="+(ip-1));
 			
 			}
+			if(ip==code.length) break;
 			opcode=code[ip];
+			Thread.sleep(100);
+		}
+	}
+
+	boolean stopMigration(int migratedPages){
+		return migratedPages<=2;
+	}
+	
+	public void migrate() {
+		int migratedPages=0;
+		
+		Socket client;
+		try {
+			client = new Socket(Config.destinationIP,Config.destinationPORT);
+			
+			ObjectOutputStream op;
+			op=new ObjectOutputStream(client.getOutputStream());
+			
+			while(!stopMigration(migratedPages)) {
+				for(int i=0;i<rm.getSize();i++){
+					/* Send page if it is dirty */
+					if(dirty[i]) {
+						// send page
+						dirty[i]=false;
+						op.writeObject(new RamPage(i, rm.getRAM(i)));
+					}
+				}
+			}
+			
+			op.writeObject(new RamPage(-1, -1));
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+	}
+
+	public void migrateStates() {
+		// TODO Auto-generated method stub
+		System.out.println("CPU States Migrated");
+		
+	}
+
+	/* receives RAM Pages at destination side */
+	public void receiveRAMPages() throws ClassNotFoundException {
+		
+		ServerSocket sc;
+		try {
+			sc = new ServerSocket(Config.destinationPORT);
+			Socket client = sc.accept();
+			
+			ObjectInputStream ip; // input stream
+			ip=new ObjectInputStream(client.getInputStream());
+			
+			while(true){
+				RamPage page=(RamPage) ip.readObject();
+				
+				// end receiving if Source has sent all pages
+				if(page.getPAGE_INDEX()==-1) break;
+				
+				setRamPage(page.getPAGE_INDEX(), page.getPAGE_VALUE());
+				
+				System.out.println("Received Page : ["+ page.getPAGE_INDEX() + "][" + page.getPAGE_VALUE()+"]" );
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	

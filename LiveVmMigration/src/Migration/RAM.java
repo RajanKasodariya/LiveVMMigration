@@ -2,6 +2,7 @@ package Migration;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Random;
 
 public class RAM implements Serializable{
 	
@@ -47,5 +48,14 @@ public class RAM implements Serializable{
 			}
 			System.out.println("");
 		}
+	}
+
+	public void fillRAM() {
+		Random r=new Random();
+		
+		for(int i=0;i<getSize();i++) {
+			setRAM(i, r.nextInt(1000));
+		}
+		
 	}
 }
