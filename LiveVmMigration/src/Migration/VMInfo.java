@@ -1,6 +1,8 @@
 package Migration;
 
-public class VMInfo {
+import java.io.Serializable;
+
+public class VMInfo implements Serializable{
 	private int stackSize;
 	private int ramSize;
 	private int ip;
