@@ -7,7 +7,7 @@ public class Config {
 	public static int sourcePORT=1235;
 	
 	/* details of Source */
-	public static String destinationIP="192.168.201.5";
-	public static int destinationPORT=1212;	
+	public static String destinationIP="172.37.38.145";
+	public static int destinationPORT=1235;	
 	
 }

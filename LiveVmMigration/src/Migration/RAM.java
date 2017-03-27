@@ -59,8 +59,12 @@ public class RAM implements Serializable{
 		dirty[index]=value;
 		
 		if(value==true){
+			int freq=0;
 			// increment freq of this page in pageFreq
-			int freq=pageFreq.get(index);
+			if(pageFreq.get(index)==null) freq = 0;
+			else{
+				freq=(int) pageFreq.get(index);
+			}
 			if(freq<=0) freq=0;
 			pageFreq.put(index, freq + 1);
 			incrementWindowSize();
@@ -74,10 +78,14 @@ public class RAM implements Serializable{
 		// decrement of all pageFreq by 1
 		if(currentWindowSize==windowSize){
 			for(Map.Entry m:pageFreq.entrySet()){
-				int freq=(int) m.getValue();
-				m.setValue(freq-1);
+				if(m!=null){
+					int freq=(int) m.getValue();
+					m.setValue(freq-1);
+				}
 			}
 			currentWindowSize=0;
+			//sudharo
+			pageFreq=new HashMap<Integer,Integer>();
 		}
 	}
 
@@ -130,7 +138,11 @@ public class RAM implements Serializable{
 	}
 	
 	public boolean isTrending(int index){
-		int freq=trendingPages.get(index);
+		int freq=0;
+		if(trendingPages.get(index)==null) freq = 0;
+		else{
+			freq=trendingPages.get(index);
+		}
 		return freq>=getSupport();
 	}
 }
