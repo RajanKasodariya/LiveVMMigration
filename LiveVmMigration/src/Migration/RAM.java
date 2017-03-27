@@ -35,6 +35,9 @@ public class RAM implements Serializable{
 		FLAG=new boolean[size];
 		dirty=new boolean[size];
 		trendingPages=new HashMap<Integer,Integer>();
+		pageFreq=new HashMap<Integer,Integer>();
+		
+		//initilization 
 		
 		Arrays.fill(RAM, 0);
 		Arrays.fill(dirty, true);
@@ -61,9 +64,12 @@ public class RAM implements Serializable{
 		if(value==true){
 			int freq=0;
 			// increment freq of this page in pageFreq
-			if(pageFreq.get(index)==null) freq = 0;
-			else{
+			Integer x = pageFreq.get(index);
+			if(pageFreq.containsKey(index)){
 				freq=(int) pageFreq.get(index);
+			}
+			else{
+				freq = 0;
 			}
 			if(freq<=0) freq=0;
 			pageFreq.put(index, freq + 1);

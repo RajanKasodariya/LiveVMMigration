@@ -29,7 +29,7 @@ class StartPreCopyMigration extends Thread{
 	public void run(){
 		vm.sendVM();            // sends VM copy
 		vm.migrate();			// migrates RAM pages iteratively
-		vm.migrateStates();		// migrates CPU states
+				// migrates CPU states
 	}
 }
 
@@ -67,6 +67,7 @@ public class Source {
 			e.printStackTrace();
 		}
 		t1.stop();
+		vm.migrateStates();
 		System.out.println("Migration completed...");
 	}
 }

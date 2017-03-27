@@ -23,6 +23,7 @@ public class VM implements Serializable{
 	private int stackSize;		// stack size
 	private int ip; 			// instruction pointer
 	private int sp;				// stack pointer
+	private boolean ableToMigrate=true; //migration eligibility    
 	
 	/* memory management variables */
 	private int code[];
@@ -35,7 +36,7 @@ public class VM implements Serializable{
 		
 	public VM(int code[],int stackSize){
 		this.stackSize=stackSize;
-		ip=-1;
+		ip=0;
 		sp=-1;
 		
 		rm=new RAM(stackSize);
@@ -143,12 +144,13 @@ public class VM implements Serializable{
 	 */
 	public void cpu() throws InterruptedException{
 		if(ip>=code.length) return;
-		int opcode=code[++ip];
+		int opcode=code[ip];
 		
 		int a,b;
 		
 		while(opcode!=HALT && ip<code.length){
 			ip++;
+			ableToMigrate=false;
 			switch(opcode){
 			case IADD:
 				System.out.println("Executing ADD: ");
@@ -219,6 +221,7 @@ public class VM implements Serializable{
 				throw new Error("invalid opcode: "+opcode+" at ip="+(ip-1));
 			
 			}
+			ableToMigrate=true;
 			if(ip==code.length) break;
 			opcode=code[ip];
 			Thread.sleep(300);
@@ -254,6 +257,12 @@ public class VM implements Serializable{
 						op.writeObject(new RamPage(i, rm.getRAM(i)));
 						migratedPages++;
 						System.out.println("Page sent "+i);
+						try {
+							Thread.sleep(1);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 				System.out.println("In loop...");
@@ -296,6 +305,7 @@ public class VM implements Serializable{
 			VMInfo vminfo = new VMInfo(this.getStackSize(),this.getStackSize());
 			vminfo.setIp(this.getIP());
 			vminfo.setSp(this.getSP());
+			while(ableToMigrate==false){}
 			op.writeObject(vminfo);
 			
 			System.out.println(">>> VM INFO : "+ vminfo);
