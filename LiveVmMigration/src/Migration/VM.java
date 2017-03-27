@@ -15,6 +15,10 @@ import static Migration.Instructions.*;
 import javax.print.attribute.standard.PrinterLocation;
 
 public class VM implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/* Variables */
 	private int stackSize;		// stack size
 	private int ip; 			// instruction pointer
@@ -22,29 +26,23 @@ public class VM implements Serializable{
 	
 	/* memory management variables */
 	private int code[];
-	private int global[];
+	//private int global[];
 	private int stack[];
 	
 	int nxt;  					// points to the current line of code to execute
 	
 	RAM rm;						// RAM 
-	
-	boolean dirty[];			// shows id page is dirtied or not ?
-	
+		
 	public VM(int code[],int stackSize){
 		this.stackSize=stackSize;
 		ip=-1;
 		sp=-1;
 		
 		rm=new RAM(stackSize);
-		rm.fillRAM();     // fill RAM with randon values
+		rm.fillRAM();     // fill RAM with random values
 		
 		this.code=code;
-		global=new int[stackSize];
-		stack=new int[stackSize];
-		dirty=new boolean[stackSize];
-		
-		Arrays.fill(dirty, true);
+		stack=new int[stackSize];		
 	}
 	
 	/*
@@ -180,7 +178,7 @@ public class VM implements Serializable{
 				a=code[ip++];
 				System.out.println("Executing Write to i: "+a);
 				rm.setRAM(a, stack[sp]);
-				dirty[a]=true;
+				rm.setPageDirty(a, true);
 				Thread.sleep(1000);
 				break;
 			case LT:
@@ -250,9 +248,9 @@ public class VM implements Serializable{
 				migratedPages=0;
 				for(int i=0;i<rm.getSize();i++){
 					/* Send page if it is dirty */
-					if(dirty[i]) {
+					if(rm.isPageDirty(i) && rm.isTrending(i)==false) {
 						// send page
-						dirty[i]=false;
+						rm.setPageDirty(i, false);
 						op.writeObject(new RamPage(i, rm.getRAM(i)));
 						migratedPages++;
 						System.out.println("Page sent "+i);
@@ -290,7 +288,9 @@ public class VM implements Serializable{
 			/* Send RAM last time */
 			
 			/* Send whole stack after ram migration */
+			System.out.println("Before stack Migration");
 			op.writeObject(stack);
+			System.out.println("After stack Migration");
 			
 			/* send state info */
 			VMInfo vminfo = new VMInfo(this.getStackSize(),this.getStackSize());

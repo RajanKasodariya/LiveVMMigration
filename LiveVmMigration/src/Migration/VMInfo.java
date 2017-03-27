@@ -3,6 +3,10 @@ package Migration;
 import java.io.Serializable;
 
 public class VMInfo implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int stackSize;
 	private int ramSize;
 	private int ip;

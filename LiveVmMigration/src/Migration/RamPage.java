@@ -3,6 +3,10 @@ package Migration;
 import java.io.Serializable;
 
 public class RamPage implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int PAGE_INDEX;  // represents index of memory page
 	private int PAGE_VALUE;  // represents value of memory page
 	

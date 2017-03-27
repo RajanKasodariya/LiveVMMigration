@@ -2,6 +2,8 @@ package Migration;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class RAM implements Serializable{
@@ -10,15 +12,78 @@ public class RAM implements Serializable{
 	private final int SIZE;
 	private int RAM[]; 
 	private boolean FLAG[];
+	private boolean dirty[];   // check if page is dirty or not ?
+	
+	/*
+	 * S : Support 
+	 * E : Error
+	 * */
+	int S;
+	double E;
+	int windowSize;
+	int currentWindowSize;
+	
+	// Stores frequency of Trending pages
+	Map<Integer,Integer> trendingPages;
+	
+	// stores freq of pages in each window
+	Map<Integer,Integer> pageFreq;
 	
 	public RAM(int size){
 		this.SIZE=size;
 		RAM=new int[size];
 		FLAG=new boolean[size];
+		dirty=new boolean[size];
+		trendingPages=new HashMap<Integer,Integer>();
+		
 		Arrays.fill(RAM, 0);
+		Arrays.fill(dirty, true);
 		Arrays.fill(FLAG, false);
+		S=10;
+		E=0.01;
+		windowSize=(int)(1.00/E);
+		currentWindowSize=0;
+	}
+	
+	/*
+	 * checks if Page is dirty or not 
+	 * */
+	public boolean isPageDirty(int index){
+		return dirty[index];
+	}
+	
+	/*
+	 * Sets the value of the Page
+	 * */
+	public void setPageDirty(int index,boolean value){
+		dirty[index]=value;
+		
+		if(value==true){
+			// increment freq of this page in pageFreq
+			int freq=pageFreq.get(index);
+			if(freq<=0) freq=0;
+			pageFreq.put(index, freq + 1);
+			incrementWindowSize();
+		}
+	}
+	
+	/* Increments window size by 1 */
+	private void incrementWindowSize() {
+		currentWindowSize++;
+		
+		// decrement of all pageFreq by 1
+		if(currentWindowSize==windowSize){
+			for(Map.Entry m:pageFreq.entrySet()){
+				int freq=(int) m.getValue();
+				m.setValue(freq-1);
+			}
+			currentWindowSize=0;
+		}
 	}
 
+	/*
+	 * Returns content at RAM[index]
+	 * */
 	public int getRAM(int index) {
 		return RAM[index];
 	}
@@ -39,6 +104,10 @@ public class RAM implements Serializable{
 		return SIZE;
 	}
 	
+	public int getSupport(){
+		return S;
+	}
+	
 	public void displayRAM(){
 		int i=0;
 		
@@ -50,6 +119,7 @@ public class RAM implements Serializable{
 		}
 	}
 
+	
 	public void fillRAM() {
 		Random r=new Random();
 		
@@ -57,5 +127,10 @@ public class RAM implements Serializable{
 			setRAM(i, r.nextInt(1000));
 		}
 		
+	}
+	
+	public boolean isTrending(int index){
+		int freq=trendingPages.get(index);
+		return freq>=getSupport();
 	}
 }
