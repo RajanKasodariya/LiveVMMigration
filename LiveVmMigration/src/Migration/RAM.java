@@ -81,6 +81,7 @@ public class RAM implements Serializable{
 	private void incrementWindowSize() {
 		currentWindowSize++;
 		
+		
 		// decrement of all pageFreq by 1
 		if(currentWindowSize==windowSize){
 			for(Map.Entry m:pageFreq.entrySet()){
