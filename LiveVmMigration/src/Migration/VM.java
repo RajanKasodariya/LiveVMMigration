@@ -295,6 +295,22 @@ public class VM implements Serializable{
 			op=new ObjectOutputStream(client.getOutputStream());
 						
 			/* Send RAM last time */
+			for(int i=0;i<rm.getSize();i++){
+				/* Send page if it is dirty */
+				if(rm.isPageDirty(i)) {
+					// send page
+					rm.setPageDirty(i, false);
+					op.writeObject(new RamPage(i, rm.getRAM(i)));
+					System.out.println("Page sent "+i);
+					try {
+						Thread.sleep(1);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			op.writeObject(new RamPage(-1, -1));
 			
 			/* Send whole stack after ram migration */
 			System.out.println("Before stack Migration");
@@ -370,6 +386,18 @@ public class VM implements Serializable{
 			ObjectInputStream ip; // input stream
 			ip=new ObjectInputStream(client.getInputStream());
 			
+			//receive ram pages
+			
+			while(true){
+				RamPage page=(RamPage) ip.readObject();
+				
+				// end receiving if Source has sent all pages
+				if(page.getPAGE_INDEX()==-1) break;
+				
+				setRamPage(page.getPAGE_INDEX(), page.getPAGE_VALUE());
+				
+				System.out.println("Received Page : ["+ page.getPAGE_INDEX() + "][" + page.getPAGE_VALUE()+"]" );
+			}
 			
 			System.out.println("Before stack migration");
 			/* read stack from source*/
