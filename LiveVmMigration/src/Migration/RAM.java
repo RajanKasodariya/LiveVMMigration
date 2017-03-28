@@ -84,7 +84,17 @@ public class RAM implements Serializable{
 		
 		// decrement of all pageFreq by 1
 		if(currentWindowSize==windowSize){
-			for(Map.Entry m:pageFreq.entrySet()){
+			// add pageFreq to trendingPages
+			for(Map.Entry m:pageFreq.entrySet()) {
+				int index=(int) m.getKey();
+				int freq=0;
+				if(trendingPages.containsKey(index)) {
+					freq=trendingPages.get(index);
+				}
+				trendingPages.put((Integer) m.getKey(),freq+(int)m.getValue());
+			}
+			
+			for(Map.Entry m:trendingPages.entrySet()){
 				if(m!=null){
 					int freq=(int) m.getValue();
 					m.setValue(freq-1);
