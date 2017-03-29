@@ -8,7 +8,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import static Migration.Instructions.*;
 
@@ -249,7 +251,8 @@ public class VM implements Serializable{
 			
 			do {
 				migratedPages=0;
-				for(int i : rm.dirtyPage){
+				Set <Integer> dummy = new HashSet<Integer>(rm.dirtyPage);
+				for(int i : dummy){
 					
 //				}
 //				for(int i=0;i<rm.getDirtyPageSize();i++){
@@ -298,8 +301,8 @@ public class VM implements Serializable{
 			op=new ObjectOutputStream(client.getOutputStream());
 						
 			/* Send RAM last time */
-			
-			for(int i : rm.dirtyPage){
+			Set <Integer> dummy = new HashSet<Integer>(rm.dirtyPage);
+			for(int i : dummy){
 				
 //				}
 //			for(int i=0;i<rm.getSize();i++){
