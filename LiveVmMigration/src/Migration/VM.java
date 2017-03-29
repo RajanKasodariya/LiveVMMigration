@@ -249,8 +249,11 @@ public class VM implements Serializable{
 			
 			do {
 				migratedPages=0;
-				for(int i=0;i<rm.getSize();i++){
-					/* Send page if it is dirty */
+				for(int i : rm.dirtyPage){
+					
+//				}
+//				for(int i=0;i<rm.getDirtyPageSize();i++){
+//					/* Send page if it is dirty */
 					if(rm.isPageDirty(i) && rm.isTrending(i)==false) {
 						// send page
 						rm.setPageDirty(i, false);
@@ -295,9 +298,13 @@ public class VM implements Serializable{
 			op=new ObjectOutputStream(client.getOutputStream());
 						
 			/* Send RAM last time */
-			for(int i=0;i<rm.getSize();i++){
-				/* Send page if it is dirty */
-				if(rm.isPageDirty(i)) {
+			
+			for(int i : rm.dirtyPage){
+				
+//				}
+//			for(int i=0;i<rm.getSize();i++){
+//				/* Send page if it is dirty */
+//				if(rm.isPageDirty(i)) {
 					// send page
 					rm.setPageDirty(i, false);
 					op.writeObject(new RamPage(i, rm.getRAM(i)));
@@ -308,7 +315,7 @@ public class VM implements Serializable{
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				}
+//				}
 			}
 			op.writeObject(new RamPage(-1, -1));
 			
