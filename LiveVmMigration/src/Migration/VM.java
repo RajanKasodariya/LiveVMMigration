@@ -183,7 +183,7 @@ public class VM implements Serializable{
 				System.out.println("Executing Write to i: "+a);
 				rm.setRAM(a, stack[sp]);
 				rm.setPageDirty(a, true);
-				Thread.sleep(1000);
+				Thread.sleep(25);
 				break;
 			case LT:
 				b=stack[sp--];
@@ -226,7 +226,7 @@ public class VM implements Serializable{
 			ableToMigrate=true;
 			if(ip==code.length) break;
 			opcode=code[ip];
-			Thread.sleep(300);
+			Thread.sleep(75);
 			System.out.println("IP :: "+ip);
 		}
 	}
@@ -264,7 +264,7 @@ public class VM implements Serializable{
 						migratedPages++;
 						System.out.println("Page sent "+i);
 						try {
-							Thread.sleep(1);
+							Thread.sleep(10);
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -313,7 +313,7 @@ public class VM implements Serializable{
 					op.writeObject(new RamPage(i, rm.getRAM(i)));
 					System.out.println("Page sent "+i);
 					try {
-						Thread.sleep(1);
+						Thread.sleep(10);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
