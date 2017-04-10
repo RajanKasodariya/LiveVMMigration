@@ -47,7 +47,7 @@ public class Source {
 		long DownTime;
 		
 		
-		VM vm=new VM(Program.code2,1000);
+		VM vm=new VM(Program.code3,1000);
 		
 		System.out.println("Len : "+Program.code2.length);
 		
@@ -88,6 +88,7 @@ public class Source {
 		System.out.println("Total Migration Time : \t"+TotalMigrationTime+
 							"\nDownTime : \t"+DownTime);
 		
+		System.out.println("Total Pages Migrated : "+vm.totalPagesMigrated);
 
 		System.out.println("Migration completed...");
 	}

@@ -35,6 +35,8 @@ public class VM implements Serializable{
 	int nxt;  					// points to the current line of code to execute
 	
 	RAM rm;						// RAM 
+	
+	int totalPagesMigrated;
 		
 	public VM(int code[],int stackSize){
 		this.stackSize=stackSize;
@@ -43,6 +45,8 @@ public class VM implements Serializable{
 		
 		rm=new RAM(stackSize);
 		rm.fillRAM();     // fill RAM with random values
+		
+		totalPagesMigrated=0;
 		
 		this.code=code;
 		stack=new int[stackSize];		
@@ -262,6 +266,7 @@ public class VM implements Serializable{
 						rm.setPageDirty(i, false);
 						op.writeObject(new RamPage(i, rm.getRAM(i)));
 						migratedPages++;
+						totalPagesMigrated++;
 						System.out.println("Page sent "+i);
 						try {
 							Thread.sleep(10);
@@ -311,6 +316,7 @@ public class VM implements Serializable{
 					// send page
 					rm.setPageDirty(i, false);
 					op.writeObject(new RamPage(i, rm.getRAM(i)));
+					totalPagesMigrated++;
 					System.out.println("Page sent "+i);
 					try {
 						Thread.sleep(10);

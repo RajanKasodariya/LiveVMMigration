@@ -21,6 +21,7 @@ public class RAM implements Serializable{
 	 * S : Support 
 	 * E : Error
 	 * */
+	
 	int S;
 	double E;
 	int windowSize;
@@ -48,9 +49,9 @@ public class RAM implements Serializable{
 		Arrays.fill(RAM, 0);
 		//Arrays.fill(dirty, true);
 		Arrays.fill(FLAG, false);
-		S=10;
+		S=3;
 		E=0.01;
-		windowSize=(int)(1.00/E);
+		windowSize=20; /* (1/E) */
 		currentWindowSize=0;
 	}
 	
