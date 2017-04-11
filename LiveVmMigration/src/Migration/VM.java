@@ -33,7 +33,7 @@ public class VM implements Serializable{
 	private int stack[];
 	
 	int nxt;  					// points to the current line of code to execute
-	
+	int maxSize=0;
 	RAM rm;						// RAM 
 	
 	int totalPagesMigrated;
@@ -156,7 +156,7 @@ public class VM implements Serializable{
 		
 		while(opcode!=HALT && ip<code.length){
 			ip++;
-			ableToMigrate=false;
+			//ableToMigrate=false;
 			switch(opcode){
 			case IADD:
 				System.out.println("Executing ADD: ");
@@ -187,7 +187,7 @@ public class VM implements Serializable{
 				System.out.println("Executing Write to i: "+a);
 				rm.setRAM(a, stack[sp]);
 				rm.setPageDirty(a, true);
-				Thread.sleep(25);
+				Thread.sleep(5);
 				break;
 			case LT:
 				b=stack[sp--];
@@ -228,15 +228,19 @@ public class VM implements Serializable{
 			
 			}
 			ableToMigrate=true;
+			if(ip==code.length&&maxSize<10000){
+				ip=2 ; maxSize++;
+			}
 			if(ip==code.length) break;
 			opcode=code[ip];
-			Thread.sleep(75);
+			
+			//Thread.sleep(75);
 			System.out.println("IP :: "+ip);
 		}
 	}
 
 	boolean stopMigration(int migratedPages,int noOfIterations){
-		return migratedPages<=2 || noOfIterations==3;
+		return migratedPages<=2 || noOfIterations==20;
 	}
 	
 	public void migrate() {
@@ -277,11 +281,12 @@ public class VM implements Serializable{
 					}
 				}
 				System.out.println("In loop...");
+				rm.displayFreqPage();
 				noOfIterations++;
 			}while(!stopMigration(migratedPages,noOfIterations));
 			
 			op.writeObject(new RamPage(-1, -1));
-			System.out.println("Migration over");
+			System.out.println("Migration over"+noOfIterations);
 			
 			op.close();
 			client.close();
@@ -304,7 +309,7 @@ public class VM implements Serializable{
 			
 			ObjectOutputStream op;
 			op=new ObjectOutputStream(client.getOutputStream());
-						
+			rm.displayFreqPage();		
 			/* Send RAM last time */
 			Set <Integer> dummy = new HashSet<Integer>(rm.dirtyPage);
 			for(int i : dummy){

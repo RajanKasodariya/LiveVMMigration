@@ -51,7 +51,7 @@ public class RAM implements Serializable{
 		Arrays.fill(FLAG, false);
 		S=3;
 		E=0.01;
-		windowSize=20; /* (1/E) */
+		windowSize=40; /* (1/E) */
 		currentWindowSize=0;
 	}
 	
@@ -89,6 +89,18 @@ public class RAM implements Serializable{
 		{
 			dirtyPage.remove(index);
 		}
+	}
+	
+	public void displayFreqPage()
+	{
+		for(Map.Entry m:pageFreq.entrySet()) {
+			System.out.print(m.getKey()+"   "+m.getValue()+"--------");
+		}
+		System.out.print("\n");
+		for(Map.Entry m:trendingPages.entrySet()){
+			System.out.print(m.getKey()+"   "+m.getValue()+"--------");
+		}
+		System.out.print("\n");
 	}
 	
 	/* Increments window size by 1 */

@@ -47,7 +47,7 @@ public class Source {
 		long DownTime;
 		
 		
-		VM vm=new VM(Program.code3,1000);
+		VM vm=new VM(Program.code6,1000);
 		
 		System.out.println("Len : "+Program.code2.length);
 		
@@ -64,7 +64,7 @@ public class Source {
 			e.printStackTrace();
 		}
 		
-		startTime_T=System.nanoTime();
+		startTime_T=System.currentTimeMillis();
 		/* Initiate Migration */
 		Thread t2=new Thread(new StartPreCopyMigration(vm));
 		t2.start();
@@ -77,10 +77,10 @@ public class Source {
 		}
 		t1.stop();
 		
-		startTime_D=System.nanoTime();
+		startTime_D=System.currentTimeMillis();
 		vm.migrateStates();
 		
-		endTime_T=System.nanoTime();
+		endTime_T=System.currentTimeMillis();
 		
 		TotalMigrationTime = endTime_T-startTime_T;
 		DownTime = endTime_T-startTime_D;

@@ -10,7 +10,7 @@ public class Destination {
 	public static void main(String args[]) throws ClassNotFoundException, IOException, InterruptedException{
 
 		// creating VM which is not doing anything
-		VM vm = new VM(Program.code3,1000);  
+		VM vm = new VM(Program.code6,1000);  
 		
 		ServerSocket sc=new ServerSocket(Config.destinationPORT);
 		vm.receiveVM(sc);
