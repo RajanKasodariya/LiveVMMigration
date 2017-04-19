@@ -24,6 +24,7 @@ public class RAM implements Serializable{
 	
 	int S;
 	double E;
+	boolean avgS=false;
 	int windowSize;
 	int currentWindowSize;
 	
@@ -112,6 +113,9 @@ public class RAM implements Serializable{
 		if(currentWindowSize==windowSize){
 			// add pageFreq to trendingPages
 			for(Map.Entry m:pageFreq.entrySet()) {
+				if(avgS==false){
+					S+=(int)m.getValue();
+				}
 				int index=(int) m.getKey();
 				int freq=0;
 				if(trendingPages.containsKey(index)) {
@@ -119,7 +123,10 @@ public class RAM implements Serializable{
 				}
 				trendingPages.put((Integer) m.getKey(),freq+(int)m.getValue());
 			}
-			
+			if(avgS==false){
+				S=(int)(S/currentWindowSize);
+				avgS=true;
+			}
 			for(Map.Entry m:trendingPages.entrySet()){
 				if(m!=null){
 					int freq=(int) m.getValue();
